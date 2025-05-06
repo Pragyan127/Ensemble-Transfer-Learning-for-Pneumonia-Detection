@@ -110,6 +110,14 @@ Each model processes the input image independently. Their feature maps are conca
 
 
 ---
+## 👥 Contributors
+
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/pragyan127"><img src="https://avatars.githubusercontent.com/pragyan127" width="80px;" alt=""/><br /><sub><b>Pragyan Dhungana</b></sub></a></td>
+    <td align="center"><a href="https://github.com/jassatish"><img src="https://avatars.githubusercontent.com/jassatish" width="80px;" alt=""/><br /><sub><b>Shatrudhan Chaudhary</b></sub></a></td>
+  </tr>
+</table>
 
 ## 📄 Citation
 
