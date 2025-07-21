@@ -27,7 +27,7 @@ Pneumonia remains a leading global health challenge. This repository provides th
 - [**Shatrudhan Chaudhary**](https://github.com/jassatish)
 - **Mithu Roy**
 - **Rupak Aryal**
-- Pragya Dhungana
+- **Pragya Dhungana**
 - **Mahesh T R** (Advisor)
 
 ---
