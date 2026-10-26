@@ -13,17 +13,16 @@ presented at ICDSBS 2025 (IEEE), Coimbatore, India.
 
 ## Overview
 
-Pneumonia is still a leading cause of death in young children, and reading chest X-rays is slow and hard to do well where radiologists are scarce. This project builds a classifier that labels a chest X-ray as normal or pneumonia.
+Pneumonia is still a major global health threat, and reading chest X-rays is slow and error prone, especially where radiologists are scarce. This project classifies a chest X-ray as normal or pneumonia.
 
-The model combines three ImageNet-pretrained networks (DenseNet121, MobileNet and EfficientNet). Each one extracts features from the image, the features are concatenated, and a small fully connected head makes the final prediction. On the held-out test set it reaches **99.24% accuracy**, ahead of each single network trained on the same data.
+The model combines DenseNet121, MobileNet and EfficientNet, all pretrained on ImageNet and fine-tuned with transfer learning. Each network extracts features from the image. The features are globally pooled, concatenated, and passed to a fully connected layer with a sigmoid activation for binary classification. The paper reports a test accuracy of **99.24%**, better than each single architecture. Grad-CAM is used to check which parts of the X-ray the model relies on.
 
 ## Dataset
 
 - Source: [Chest X-ray Images (Pneumonia) on Kaggle](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia)
-- Size: about 5,860 chest X-ray images, labelled Normal or Pneumonia
-- Split: 70% train, 15% validation, 15% test (523 test images)
-- Preprocessing: images resized to 224 x 224 and scaled to the 0 to 1 range
-- Augmentation: rotation, flip, zoom and shift
+- Size: 5,856 chest X-ray images, labelled Normal or Pneumonia
+- Split: 70% train, 15% validation, 15% test
+- Preprocessing: images resized to 224 x 224, pixel values scaled to the range 0 to 1, Gaussian noise added to training images to reduce memorization
 
 The dataset is not stored in this repository. Download it from Kaggle and place it in a folder named `data/` (see How to run).
 
@@ -31,29 +30,28 @@ The dataset is not stored in this repository. Download it from Kaggle and place 
 
 | Part | Details |
 |------|---------|
-| Backbones | DenseNet121, MobileNet, EfficientNet |
-| Initial weights | ImageNet |
-| Fine-tuning | Last 2 blocks of each backbone unfrozen |
-| Fusion | Globally pooled features from the three networks are concatenated |
-| Head | Fully connected layers with dropout |
-| Optimizer | Adam, learning rate 1e-4 with decay on plateau |
-| Regularization | Early stopping on validation loss |
+| Backbones | DenseNet121, MobileNet, EfficientNet (ImageNet weights) |
+| Fine-tuning | Last few layers replaced and unfrozen, small learning rate to keep the pretrained weights |
+| Feature fusion | Global average pooling on each network, then concatenation |
+| Output | Fully connected layer with sigmoid activation (normal vs pneumonia) |
+| Loss | Binary cross-entropy |
+| Optimizer | Adam, learning rate 1e-4, halved when validation loss plateaus |
+| Batch size | 16 |
+| Training | Up to 28 epochs with early stopping on validation loss |
 
-Concatenating features, instead of averaging the three networks' predictions, lets the classifier learn how much to rely on each network.
+Each backbone brings a different strength: DenseNet121 reuses features through dense connections, MobileNet is computationally light, and EfficientNet scales depth, width and resolution in a balanced way.
 
 ## Results
 
-Test set of 523 images:
+Reported in the paper, on the held-out test set:
 
 | Metric | Value |
 |--------|-------|
-| Accuracy | 99.24% (as reported in the paper) |
-| Precision | about 0.99 |
-| Recall | about 0.99 |
-| F1-score | about 0.99 |
-| ROC-AUC | close to 1.0 |
+| Test accuracy | 99.24% |
+| Test loss | 0.0169 |
+| ROC-AUC | about 1.0 |
 
-The confusion matrix shows 134 normal and 384 pneumonia images classified correctly, with 1 false positive and 4 false negatives. Most false negatives were low contrast or poorly aligned X-rays.
+The confusion matrix shows 134 normal and 384 pneumonia images classified correctly, with 1 false positive and 4 false negatives. Most false negatives were low contrast or poorly aligned X-rays, and most false positives looked similar to artifacts or other lung conditions.
 
 ### Training curves
 
@@ -86,8 +84,10 @@ The confusion matrix shows 134 normal and 384 pneumonia images classified correc
 
 ## Limitations
 
-- The data is split randomly by image. The public dataset likely contains several images from the same patient, so a patient-level split could give lower numbers.
-- The model was evaluated on one dataset only. It has not been tested on external hospital data.
+- The data is split randomly by image, and the public dataset likely has several images per patient, so a patient-level split could give lower numbers.
+- The model was evaluated on one dataset only, with no external hospital data.
+- Running three networks together is heavier than a single model, which limits use on low-resource hardware.
+- The data is mostly pediatric, so the model may need more tuning for adult patients.
 - This is a research prototype and not a medical device.
 
 ## How to run
