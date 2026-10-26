@@ -1,135 +1,61 @@
-# 🫁 Ensemble Transfer Learning for Pneumonia Detection
+# Ensemble Transfer Learning for Pneumonia Detection
 
 [![Paper](https://img.shields.io/badge/IEEE-Paper-blue)](https://ieeexplore.ieee.org/document/11031996)
 [![Conference](https://img.shields.io/badge/ICDSBS%2725-Presented-blueviolet)](https://ieeexplore.ieee.org/document/11031996)
 [![Stars](https://img.shields.io/github/stars/Pragyan127/Ensemble-Transfer-Learning-for-Pneumonia-Detection?style=social)](https://github.com/Pragyan127/Ensemble-Transfer-Learning-for-Pneumonia-Detection)
 [![Last Commit](https://img.shields.io/github/last-commit/Pragyan127/Ensemble-Transfer-Learning-for-Pneumonia-Detection)](https://github.com/Pragyan127/Ensemble-Transfer-Learning-for-Pneumonia-Detection/commits/main)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0003--6690--3624-brightgreen?logo=orcid)](https://orcid.org/0009-0003-6690-3624)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Pragyan127/Ensemble-Transfer-Learning-for-Pneumonia-Detection/blob/main/Ensemble-Transfer-Learning-for-Pneumonia-Detection.ipynb)
 
----
+Official code for the paper
+[Ensemble Deep Learning Approach for Pneumonia Detection Using DenseNet, MobileNet, and EfficientNet with Transfer Learning](https://ieeexplore.ieee.org/document/11031996),
+presented at ICDSBS 2025 (IEEE), Coimbatore, India.
 
-> **Official IEEE code for:**  
-> [Ensemble Transfer Learning for Pneumonia Detection](https://ieeexplore.ieee.org/document/11031996), presented at [ICDSBS 2025](https://www.srmist.edu.in/events/icdsbs-2025/), Coimbatore, India.
+## Overview
 
----
+Pneumonia is still a leading cause of death in young children, and reading chest X-rays is slow and hard to do well where radiologists are scarce. This project builds a classifier that labels a chest X-ray as normal or pneumonia.
 
-## 📑 Abstract
+The model combines three ImageNet-pretrained networks (DenseNet121, MobileNet and EfficientNet). Each one extracts features from the image, the features are concatenated, and a small fully connected head makes the final prediction. On the held-out test set it reaches **99.24% accuracy**, ahead of each single network trained on the same data.
 
-Pneumonia remains a leading global health challenge. This repository provides the official implementation of an **ensemble deep learning model** that combines DenseNet121, MobileNet, and EfficientNet (using transfer learning) for robust and accurate pneumonia detection from chest X-ray (CXR) images. Our ensemble approach achieves a **test accuracy of 99.24%** on the standard Kaggle CXR dataset, outperforming single-model baselines and most published results.
+## Dataset
 
-**Keywords:** Pneumonia, Deep Learning, Ensemble, Transfer Learning, DenseNet121, MobileNet, EfficientNet, Chest X-ray, Medical Imaging
+- Source: [Chest X-ray Images (Pneumonia) on Kaggle](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia)
+- Size: about 5,860 chest X-ray images, labelled Normal or Pneumonia
+- Split: 70% train, 15% validation, 15% test (523 test images)
+- Preprocessing: images resized to 224 x 224 and scaled to the 0 to 1 range
+- Augmentation: rotation, flip, zoom and shift
 
----
+The dataset is not stored in this repository. Download it from Kaggle and place it in a folder named `data/` (see How to run).
 
-## 👨‍💻 Authors
+## Model
 
-- [**Pragyan Dhungana**](https://github.com/Pragyan127)
-- [**Shatrudhan Chaudhary**](https://github.com/jassatish)
-- **Mithu Roy**
-- **Rupak Aryal**
-- **Pragya Dhungana**
-- **Mahesh T R** (Advisor)
+| Part | Details |
+|------|---------|
+| Backbones | DenseNet121, MobileNet, EfficientNet |
+| Initial weights | ImageNet |
+| Fine-tuning | Last 2 blocks of each backbone unfrozen |
+| Fusion | Globally pooled features from the three networks are concatenated |
+| Head | Fully connected layers with dropout |
+| Optimizer | Adam, learning rate 1e-4 with decay on plateau |
+| Regularization | Early stopping on validation loss |
 
----
+Concatenating features, instead of averaging the three networks' predictions, lets the classifier learn how much to rely on each network.
 
-## 👥 Contributors
+## Results
 
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/pragyan127">
-        <img src="https://avatars.githubusercontent.com/pragyan127" width="80px;" alt=""/>
-        <br /><sub><b>Pragyan Dhungana</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/jassatish">
-        <img src="https://avatars.githubusercontent.com/jassatish" width="80px;" alt=""/>
-        <br /><sub><b>Shatrudhan Chaudhary</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/Rupak1620">
-        <img src="https://avatars.githubusercontent.com/Rupak1620" width="80px;" alt=""/>
-        <br /><sub><b>Rupak Aryal</b></sub>
-      </a>
-    </td>
-  </tr>
-</table>
+Test set of 523 images:
 
----
+| Metric | Value |
+|--------|-------|
+| Accuracy | 99.24% (as reported in the paper) |
+| Precision | about 0.99 |
+| Recall | about 0.99 |
+| F1-score | about 0.99 |
+| ROC-AUC | close to 1.0 |
 
-## 📰 Table of Contents
+The confusion matrix shows 134 normal and 384 pneumonia images classified correctly, with 1 false positive and 4 false negatives. Most false negatives were low contrast or poorly aligned X-rays.
 
-- [Introduction](#introduction)
-- [Dataset](#dataset)
-- [Model Architecture](#model-architecture)
-- [Training & Evaluation](#training--evaluation)
-- [Results & Visualizations](#results--visualizations)
-- [How to Run](#how-to-run)
-- [Citation](#citation)
-- [Contact](#contact)
-
----
-
-## 🚀 Introduction
-
-Pneumonia is a critical respiratory disease that requires timely diagnosis. Manual reading of chest X-rays is labor-intensive and prone to error. **Transfer learning** and model **ensembling** enable highly accurate, automated detection—accelerating clinical decision-making and reducing diagnostic errors.
-
----
-
-## 📂 Dataset
-
-- **Source:** [Kaggle - Chest X-ray Images (Pneumonia)](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia)
-- **Images:** 5,863 CXR images (Normal/Pneumonia)
-- **Preprocessing:**  
-  - Images resized to 224×224 (fits all backbones)
-  - Normalization, augmentation (flip, rotate, zoom)
-
----
-
-## 🏗️ Model Architecture
-
-**Ensemble of:**
-- DenseNet121
-- MobileNet
-- EfficientNet
-
-All models are fine-tuned on the dataset, their outputs concatenated and passed through fully-connected layers for final prediction.
-
-**Architecture Table:**
-
-| Model         | Layers Unfrozen | Input Shape   | Pre-trained? | Output Shape    |
-|---------------|-----------------|--------------|--------------|-----------------|
-| DenseNet121   | Last 2 blocks   | 224×224×3    | ImageNet     | Feature vector  |
-| MobileNet     | Last 2 blocks   | 224×224×3    | ImageNet     | Feature vector  |
-| EfficientNet  | Last 2 blocks   | 224×224×3    | ImageNet     | Feature vector  |
-| Ensemble Head | Dense, Dropout  | -            | -            | 2 (Softmax)     |
-
----
-
-## 🏋️ Training & Evaluation
-
-- **Loss:** Categorical Cross-Entropy
-- **Optimizer:** Adam (lr=0.0001)
-- **Metrics:** Accuracy, Precision, Recall, F1, ROC-AUC
-- **Augmentation:** Rotation, flip, zoom, shift
-
-**Hardware:** GPU recommended (Colab, Kaggle, or local)
-
----
-
-## 📈 Results & Visualizations
-
-| Metric     | Value      |
-|------------|------------|
-| Accuracy   | **99.24%** |
-| Precision  | 0.99       |
-| Recall     | 0.99       |
-| F1-Score   | 0.99       |
-| ROC-AUC    | 0.99       |
-
-### Training Curves
+### Training curves
 
 <table>
   <tr>
@@ -138,81 +64,84 @@ All models are fine-tuned on the dataset, their outputs concatenated and passed 
   </tr>
 </table>
 
----
-
-### Confusion Matrix
+### Confusion matrix
 
 <div align="center">
-  <img src="images/confusion_matrix.png" width="340"/><br>
-  <b>Confusion Matrix</b>
+  <img src="images/confusion_matrix.png" width="340"/>
 </div>
 
----
-
-### ROC Curve
+### ROC curve
 
 <div align="center">
-  <img src="images/roc_curve.png" width="340"/><br>
-  <b>ROC-AUC Curve</b>
+  <img src="images/roc_curve.png" width="340"/>
 </div>
 
----
-
-### Sample Prediction
+### Sample prediction
 
 <div align="center">
   <img src="images/sample_prediction.png" width="350"/>
   <br>
-  <b>Sample X-ray: Predicted <i>Pneumonia</i> | True <i>Pneumonia</i></b>
+  <b>Predicted: Pneumonia | True: Pneumonia</b>
 </div>
 
----
+## Limitations
 
-## 💻 How to Run
+- The data is split randomly by image. The public dataset likely contains several images from the same patient, so a patient-level split could give lower numbers.
+- The model was evaluated on one dataset only. It has not been tested on external hospital data.
+- This is a research prototype and not a medical device.
 
-1. **Clone this repo**
-    ```bash
-    git clone https://github.com/Pragyan127/Ensemble-Transfer-Learning-for-Pneumonia-Detection.git
-    cd Ensemble-Transfer-Learning-for-Pneumonia-Detection
-    ```
+## How to run
 
-2. **[Optional] Create & activate a virtual environment**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # or venv\Scripts\activate on Windows
-    ```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Pragyan127/Ensemble-Transfer-Learning-for-Pneumonia-Detection.git
+   cd Ensemble-Transfer-Learning-for-Pneumonia-Detection
+   ```
+2. Optionally create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # on Windows: venv\Scripts\activate
+   ```
+3. Install the requirements:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Download the [Kaggle dataset](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia) and extract it into a folder named `data/`.
+5. Open and run the notebook:
+   ```bash
+   jupyter notebook Ensemble-Transfer-Learning-for-Pneumonia-Detection.ipynb
+   ```
+   You can also run it in JupyterLab, VS Code or Colab. A GPU is recommended.
 
-3. **Install requirements**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *(Or manually install: numpy, pandas, matplotlib, tensorflow, keras, scikit-learn, seaborn)*
+## Authors
 
-4. **Download and extract the [Kaggle dataset](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia) into a folder named `/data`.**
+- [Pragyan Dhungana](https://github.com/Pragyan127)
+- [Shatrudhan Chaudhary](https://github.com/jassatish)
+- Mithu Roy
+- [Rupak Aryal](https://github.com/Rupak1620)
+- Pragya Dhungana
+- Mahesh T R (advisor)
 
-5. **Open and run the notebook**
-    ```bash
-    jupyter notebook Ensemble-Transfer-Learning-for-Pneumonia-Detection.ipynb
-    ```
-    - Or run all cells in **VS Code**, **JupyterLab**, or **Colab**.
+## Citation
 
----
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Pragyan127/Ensemble-Transfer-Learning-for-Pneumonia-Detection/blob/main/Ensemble-Transfer-Learning-for-Pneumonia-Detection.ipynb)
-
----
-
-## 📖 Citation
-
-If you use this work, **please cite:**
+If you use this work, please cite:
 
 ```bibtex
-@inproceedings{dhungana2024ensemble,
-  title={Ensemble Transfer Learning for Pneumonia Detection},
-  author={Dhungana, Pragyan and Chaudhary, Shatrudhan and Aryal, Rupak and Mahesh, T R and Rajbanshi, Ranjan Kumar and Roy, Mithu},
-  booktitle={2024 International Conference on Emerging Research in Computational Science (ICERCS)},
-  year={2024},
+@inproceedings{dhungana2025ensemble,
+  title={Ensemble Deep Learning Approach for Pneumonia Detection Using DenseNet, MobileNet, and EfficientNet with Transfer Learning},
+  author={Dhungana, Pragyan and Chaudhary, Shatrudhan and Roy, Mithu and Mahesh, T. R. and Aryal, Rupak and Dhungana, Pragya},
+  booktitle={ICDSBS 2025},
+  year={2025},
   publisher={IEEE},
-  doi={10.1109/ICERCS57790.2024.11031996},
+  doi={10.1109/ICDSBS63635.2025.11031996},
   url={https://ieeexplore.ieee.org/document/11031996}
 }
+```
+
+## Contact
+
+Pragyan Dhungana: [pragyan0814@gmail.com](mailto:pragyan0814@gmail.com) | [LinkedIn](https://www.linkedin.com/in/pragyan127/)
+
+## License
+
+MIT, see the [LICENSE](LICENSE) file.
